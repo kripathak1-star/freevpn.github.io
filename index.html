@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FreeVPN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    .card {
+      background: #020617;
+      padding: 25px;
+      border-radius: 15px;
+      max-width: 350px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    }
+    button {
+      padding: 15px;
+      width: 100%;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .connect { background: #22c55e; color: black; }
+    .disconnect { background: #ef4444; color: white; }
+    .premium {
+      background: #facc15;
+      color: black;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🛡️ FreeVPN</h1>
+<p>Fast • Secure • Free</p>
+
+<div class="card">
+  <p>Status: <b id="status">Disconnected</b></p>
+  <button id="btn" class="connect" onclick="toggle()">Connect</button>
+
+  <p style="margin-top:20px;">🌍 Free Server: USA</p>
+  <p>⭐ Premium Servers: Canada, UK, Germany</p>
+
+  <a href="premium.html">
+    <button class="premium">Upgrade to Premium</button>
+  </a>
+</div>
+
+<script>
+let connected = false;
+function toggle() {
+  connected = !connected;
+  document.getElementById("status").innerText = connected ? "Connected" : "Disconnected";
+  const btn = document.getElementById("btn");
+  btn.innerText = connected ? "Disconnect" : "Connect";
+  btn.className = connected ? "disconnect" : "connect";
+}
+</script>
+
+</body>
+</html>
