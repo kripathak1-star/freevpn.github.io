@@ -1,70 +1,148 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FreeVPN</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      background: #0f172a;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px;
-    }
-    .card {
-      background: #020617;
-      padding: 25px;
-      border-radius: 15px;
-      max-width: 350px;
-      margin: auto;
-      box-shadow: 0 0 20px rgba(0,255,255,0.2);
-    }
-    button {
-      padding: 15px;
-      width: 100%;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-    .connect { background: #22c55e; color: black; }
-    .disconnect { background: #ef4444; color: white; }
-    .premium {
-      background: #facc15;
-      color: black;
-      margin-top: 20px;
-    }
+    body { background:#0f172a; color:#fff; font-family:Arial, sans-serif; text-align:center; padding:26px; }
+    .card { background:#020617; padding:22px; border-radius:16px; max-width:380px; margin:0 auto; box-shadow:0 0 18px rgba(0,255,255,.15); }
+    .row { display:flex; gap:10px; margin-top:12px; }
+    select, button { width:100%; padding:14px; font-size:16px; border:none; border-radius:12px; }
+    select { background:#111827; color:#fff; border:1px solid #1f2937; }
+    button { cursor:pointer; font-weight:700; }
+    .connect { background:#22c55e; color:#001; }
+    .disconnect { background:#ef4444; color:#fff; }
+    .premium { background:#facc15; color:#111; margin-top:14px; }
+    .hint { opacity:.85; font-size:14px; margin-top:10px; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#111827; border:1px solid #1f2937; margin-top:10px; }
+    .msg { margin-top:12px; min-height:20px; color:#fbbf24; font-size:14px; }
+    a { color:#38bdf8; text-decoration:none; }
   </style>
 </head>
-
 <body>
+  <h1>🛡️ FreeVPN</h1>
+  <p class="hint">Fast • Secure • Free (Demo)</p>
 
-<h1>🛡️ FreeVPN</h1>
-<p>Fast • Secure • Free</p>
+  <div class="card">
+    <div class="pill">Status: <b id="status">Disconnected</b></div>
 
-<div class="card">
-  <p>Status: <b id="status">Disconnected</b></p>
-  <button id="btn" class="connect" onclick="toggle()">Connect</button>
+    <div class="row">
+      <select id="server">
+        <option value="usa" data-premium="0">🌍 USA (Free)</option>
+        <option value="canada" data-premium="1">⭐ Canada (Premium)</option>
+        <option value="uk" data-premium="1">⭐ UK (Premium)</option>
+        <option value="germany" data-premium="1">⭐ Germany (Premium)</option>
+      </select>
+    </div>
 
-  <p style="margin-top:20px;">🌍 Free Server: USA</p>
-  <p>⭐ Premium Servers: Canada, UK, Germany</p>
+    <button id="btn" class="connect" type="button">Connect</button>
+    <div class="msg" id="msg"></div>
 
-  <a href="premium.html">
-    <button class="premium">Upgrade to Premium</button>
-  </a>
-</div>
+    <a href="premium.html"><button class="premium" type="button">Upgrade to Premium</button></a>
+    <p class="hint">Tip: Premium servers are locked until you “upgrade”.</p>
+  </div>
 
-<script>
-let connected = false;
-function toggle() {
-  connected = !connected;
-  document.getElementById("status").innerText = connected ? "Connected" : "Disconnected";
-  const btn = document.getElementById("btn");
-  btn.innerText = connected ? "Disconnect" : "Connect";
-  btn.className = connected ? "disconnect" : "connect";
-}
-</script>
+  <script>
+    const statusEl = document.getElementById("status");
+    const btn = document.getElementById("btn");
+    const msg = document.getElementById("msg");
+    const server = document.getElementById("server");
 
+    // Demo premium flag (later you can replace with real login/payment)
+    let isPremium = localStorage.getItem("isPremium") === "1";
+    let connected = localStorage.getItem("connected") === "1";
+
+    function setMsg(t=""){ msg.textContent = t; }
+
+    function render() {
+      statusEl.textContent = connected ? "Connected" : "Disconnected";
+      btn.textContent = connected ? "Disconnect" : "Connect";
+      btn.className = connected ? "disconnect" : "connect";
+      localStorage.setItem("connected", connected ? "1" : "0");
+    }
+
+    function selectedIsPremiumServer() {
+      const opt = server.options[server.selectedIndex];
+      return opt.getAttribute("data-premium") === "1";
+    }
+
+    server.addEventListener("change", () => {
+      if (selectedIsPremiumServer() && !isPremium) {
+        setMsg("⭐ This server is Premium. Please upgrade to use it.");
+        // auto revert back to USA
+        server.value = "usa";
+      } else {
+        setMsg("");
+      }
+    });
+
+    btn.addEventListener("click", async () => {
+      setMsg("");
+      if (!connected) {
+        // connect flow
+        if (selectedIsPremiumServer() && !isPremium) {
+          setMsg("⭐ Premium required. Tap Upgrade to Premium.");
+          return;
+        }
+        statusEl.textContent = "Connecting…";
+        btn.disabled = true;
+        await new Promise(r => setTimeout(r, 900));
+        connected = true;
+        btn.disabled = false;
+        render();
+      } else {
+        // disconnect flow
+        statusEl.textContent = "Disconnecting…";
+        btn.disabled = true;
+        await new Promise(r => setTimeout(r, 500));
+        connected = false;
+        btn.disabled = false;
+        render();
+      }
+    });
+
+    // initial render
+    render();
+  </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FreeVPN Premium</title>
+  <style>
+    body { background:#020617; color:white; font-family:Arial; text-align:center; padding:40px; }
+    .box { background:#0f172a; padding:28px; border-radius:16px; max-width:380px; margin:auto; border:1px solid #1f2937; }
+    button { padding:14px; width:100%; font-size:16px; border:none; border-radius:12px; background:#facc15; font-weight:700; cursor:pointer; }
+    .back { display:inline-block; margin-top:16px; color:#38bdf8; text-decoration:none; }
+    .small { opacity:.85; font-size:13px; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <h1>⭐ Premium</h1>
+
+  <div class="box">
+    <p>✔ No Ads</p>
+    <p>✔ Premium Servers</p>
+    <p>✔ Faster “Connect”</p>
+    <p><b>$4.99 / month</b> (Demo)</p>
+
+    <button onclick="upgrade()">Unlock Premium (Demo)</button>
+    <p class="small">This is a demo button. It will unlock premium on this device only.</p>
+  </div>
+
+  <a class="back" href="index.html">⬅ Back</a>
+
+  <script>
+    function upgrade(){
+      localStorage.setItem("isPremium","1");
+      alert("Premium unlocked (demo) ✅ Now you can use Premium servers!");
+      location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
+
